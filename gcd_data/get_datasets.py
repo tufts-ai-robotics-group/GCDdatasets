@@ -1,23 +1,19 @@
+from copy import deepcopy
+from pathlib import Path
+import pickle
+
+from gcd_data.config import osr_split_dir
 from gcd_data.data_utils import MergedDataset
 
 from gcd_data.cifar import get_cifar_10_datasets, get_cifar_100_datasets
 from gcd_data.herbarium_19 import get_herbarium_datasets
 from gcd_data.stanford_cars import get_scars_datasets
-from gcd_data.imagenet import get_imagenet_100_datasets
 from gcd_data.cub import get_cub_datasets
 from gcd_data.fgvc_aircraft import get_aircraft_datasets
-
-from copy import deepcopy
-import pickle
-import os
-
-from gcd_data.config import osr_split_dir
-
 
 get_dataset_funcs = {
     'cifar10': get_cifar_10_datasets,
     'cifar100': get_cifar_100_datasets,
-    'imagenet_100': get_imagenet_100_datasets,
     'herbarium_19': get_herbarium_datasets,
     'cub': get_cub_datasets,
     'aircraft': get_aircraft_datasets,
@@ -92,7 +88,7 @@ def get_class_splits(args):
     elif args.dataset_name == 'herbarium_19':
 
         args.image_size = 224
-        herb_path_splits = os.path.join(osr_split_dir, 'herbarium_19_class_splits.pkl')
+        herb_path_splits = Path(osr_split_dir, 'herbarium_19_class_splits.pkl')
 
         with open(herb_path_splits, 'rb') as handle:
             class_splits = pickle.load(handle)
@@ -112,7 +108,7 @@ def get_class_splits(args):
 
         if use_ssb_splits:
 
-            split_path = os.path.join(osr_split_dir, 'scars_osr_splits.pkl')
+            split_path = Path(osr_split_dir, 'scars_osr_splits.pkl')
             with open(split_path, 'rb') as handle:
                 class_info = pickle.load(handle)
 
@@ -131,7 +127,7 @@ def get_class_splits(args):
         args.image_size = 224
         if use_ssb_splits:
 
-            split_path = os.path.join(osr_split_dir, 'aircraft_osr_splits.pkl')
+            split_path = Path(osr_split_dir, 'aircraft_osr_splits.pkl')
             with open(split_path, 'rb') as handle:
                 class_info = pickle.load(handle)
 
@@ -151,7 +147,7 @@ def get_class_splits(args):
 
         if use_ssb_splits:
 
-            split_path = os.path.join(osr_split_dir, 'cub_osr_splits.pkl')
+            split_path = Path(osr_split_dir, 'cub_osr_splits.pkl')
             with open(split_path, 'rb') as handle:
                 class_info = pickle.load(handle)
 

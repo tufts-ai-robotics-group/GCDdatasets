@@ -9,8 +9,14 @@ from gcd_data.config import herbarium_dataroot
 
 
 class HerbariumDataset19(torchvision.datasets.ImageFolder):
+    urls = [
+        "https://storage.googleapis.com/nybg/herbarium-2019-fgvc6/small-train.tar.gz",
+        "https://storage.googleapis.com/nybg/herbarium-2019-fgvc6/small-validation.tar.gz"
+    ]
 
     def __init__(self, *args, **kwargs):
+        self.root = kwargs["root"]
+        self.download()
 
         # Process metadata json for training images into a DataFrame
         super().__init__(*args, **kwargs)
@@ -23,6 +29,29 @@ class HerbariumDataset19(torchvision.datasets.ImageFolder):
         uq_idx = self.uq_idxs[idx]
 
         return img, label, uq_idx
+
+    def _check_exists(self):
+        return os.path.exists(self.root)
+
+    def download(self):
+        """Download the herbarium_19 data if it doesn't exist already."""
+        from torchvision.datasets.utils import download_url
+        import tarfile
+
+        if self._check_exists():
+            return
+
+        parent_dir = os.path.join(self.root, os.path.pardir)
+        os.makedirs(parent_dir, exist_ok=True)
+
+        for url in self.urls:
+            tar_filename = "temp.tar.gz"
+            download_url(url, parent_dir, tar_filename)
+            tar_path = os.path.join(parent_dir, tar_filename)
+            tar = tarfile.open(tar_path)
+            tar.extractall(parent_dir)
+            tar.close()
+            os.remove(tar_path)
 
 
 def subsample_dataset(dataset, idxs):

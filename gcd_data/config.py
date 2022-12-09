@@ -13,4 +13,4 @@ herbarium_dataroot = data_root / "herbarium_19"
 imagenet_root = data_root / "ImageNet"
 
 # OSR Split dir
-osr_split_dir = "data/ssb_splits"
+osr_split_dir = data_root / "ssb_splits"

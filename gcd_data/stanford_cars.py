@@ -14,6 +14,12 @@ class CarsDataset(Dataset):
     """
         Cars Dataset
     """
+    urls = [
+        "http://ai.stanford.edu/~jkrause/car196/cars_train.tgz",
+        "http://ai.stanford.edu/~jkrause/car196/cars_test.tgz",
+        "https://ai.stanford.edu/~jkrause/cars/car_devkit.tgz",
+        "http://ai.stanford.edu/~jkrause/car196/cars_test_annos_withlabels.mat"
+    ]
 
     def __init__(self, train=True, limit=0, data_dir=car_root, transform=None):
 
@@ -29,6 +35,8 @@ class CarsDataset(Dataset):
         self.train = train
 
         self.transform = transform
+
+        self.download()
 
         if not isinstance(metas, str):
             raise Exception("Train metas must be string location !")
@@ -64,6 +72,32 @@ class CarsDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
+
+    def _check_exists(self):
+        return os.path.exists(self.data_dir)
+
+    def download(self):
+        """Download the StanfordCars data if it doesn't exist already."""
+        from torchvision.datasets.utils import download_url
+        import tarfile
+
+        if self._check_exists():
+            return
+
+        parent_dir = os.path.join(self.data_dir, os.path.pardir)
+        os.makedirs(parent_dir, exist_ok=True)
+
+        for url in self.urls:
+            if url[-4:] == ".tgz":
+                tar_filename = "temp.tar.gz"
+                download_url(url, parent_dir, tar_filename)
+                tar_path = os.path.join(parent_dir, tar_filename)
+                tar = tarfile.open(tar_path)
+                tar.extractall(parent_dir)
+                tar.close()
+                os.remove(tar_path)
+            else:
+                download_url(url, os.path.join(parent_dir, "/devkit"), tar_filename)
 
 
 def subsample_dataset(dataset, idxs):

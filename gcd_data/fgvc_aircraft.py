@@ -151,6 +151,7 @@ class FGVCAircraft(Dataset):
         print('Extracting %s to %s ... (may take a few minutes)' % (tar_path, data_folder))
         tar = tarfile.open(tar_path)
         tar.extractall(parent_dir)
+        tar.close()
 
         # if necessary, rename data folder to self.root
         if not os.path.samefile(data_folder, self.root):
