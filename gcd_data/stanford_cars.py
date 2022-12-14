@@ -81,7 +81,7 @@ class CarsDataset(Dataset):
         if self._check_exists():
             return
 
-        parent_dir = self.data_dir.parent()
+        parent_dir = self.data_dir.parent
         parent_dir.mkdir(exist_ok=True)
 
         for url in self.urls:
