@@ -1,5 +1,5 @@
-import os
 import numpy as np
+from pathlib import Path
 from copy import deepcopy
 from scipy import io as mat_io
 
@@ -22,11 +22,10 @@ class CarsDataset(Dataset):
     ]
 
     def __init__(self, train=True, limit=0, data_dir=car_root, transform=None):
-
-        metas = os.path.join(data_dir, 'devkit/cars_train_annos.mat') if train else os.path.join(
-            data_dir, 'devkit/cars_test_annos_withlabels.mat')
-        data_dir = os.path.join(
-            data_dir, 'cars_train/') if train else os.path.join(data_dir, 'cars_test/')
+        data_dir = Path(data_dir)
+        metas = data_dir / 'devkit/cars_train_annos.mat' if train else \
+            data_dir / 'devkit/cars_test_annos_withlabels.mat'
+        data_dir = data_dir / 'cars_train/' if train else data_dir / 'cars_test/'
 
         self.loader = default_loader
         self.data_dir = data_dir
@@ -38,8 +37,6 @@ class CarsDataset(Dataset):
 
         self.download()
 
-        if not isinstance(metas, str):
-            raise Exception("Train metas must be string location !")
         labels_meta = mat_io.loadmat(metas)
 
         for idx, img_ in enumerate(labels_meta['annotations'][0]):
@@ -48,7 +45,7 @@ class CarsDataset(Dataset):
                     break
 
             # self.data.append(img_resized)
-            self.data.append(data_dir + img_[5][0])
+            self.data.append(data_dir / img_[5][0])
             # if self.mode == 'train':
             self.target.append(img_[4][0][0])
 
@@ -74,7 +71,7 @@ class CarsDataset(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return os.path.exists(self.data_dir)
+        return self.data_dir.exists()
 
     def download(self):
         """Download the StanfordCars data if it doesn't exist already."""
@@ -84,20 +81,20 @@ class CarsDataset(Dataset):
         if self._check_exists():
             return
 
-        parent_dir = os.path.join(self.data_dir, os.path.pardir)
-        os.makedirs(parent_dir, exist_ok=True)
+        parent_dir = self.data_dir.parent()
+        parent_dir.mkdir(exist_ok=True)
 
         for url in self.urls:
             if url[-4:] == ".tgz":
                 tar_filename = "temp.tar.gz"
                 download_url(url, parent_dir, tar_filename)
-                tar_path = os.path.join(parent_dir, tar_filename)
+                tar_path = parent_dir / tar_filename
                 tar = tarfile.open(tar_path)
                 tar.extractall(parent_dir)
                 tar.close()
-                os.remove(tar_path)
+                tar_path.unlink()
             else:
-                download_url(url, os.path.join(parent_dir, "/devkit"), tar_filename)
+                download_url(url, parent_dir / "devkit", tar_filename)
 
 
 def subsample_dataset(dataset, idxs):
