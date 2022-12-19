@@ -93,8 +93,10 @@ class CarsDataset(Dataset):
                 tar.extractall(parent_dir)
                 tar.close()
                 tar_path.unlink()
+            elif "cars_test_annos_withlabels.mat" in url:
+                download_url(url, parent_dir / "devkit", "cars_test_annos_withlabels.mat")
             else:
-                download_url(url, parent_dir / "devkit", tar_filename)
+                raise Exception(f"Unexpected URL in Stanford Cars: {url}")
 
 
 def subsample_dataset(dataset, idxs):
