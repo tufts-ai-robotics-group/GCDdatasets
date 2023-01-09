@@ -39,3 +39,20 @@ class MergedDataset(Dataset):
 
     def __len__(self):
         return len(self.unlabelled_dataset) + len(self.labelled_dataset)
+
+
+class IndexDataset(Dataset):
+    def __init__(self, source_dataset) -> None:
+        """Wrap a dataset and return its contents with indices appended
+
+        Args:
+            source_dataset (Dataset): Dataset to be wrapped
+        """
+        super().__init__()
+        self.source_dataset = source_dataset
+
+    def __getitem__(self, item):
+        return (*self.source_dataset[item], item)
+
+    def __len__(self):
+        return len(self.source_dataset)
