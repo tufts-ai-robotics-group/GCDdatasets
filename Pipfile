@@ -15,6 +15,7 @@ name = "pytorch_cu116"
 
 [packages]
 gcd_data = {editable = true, path = "."}
+polycraft-nov-data = {editable = true, path = "./submodules/polycraft-novelty-data"}
 
 [torch_cpu]
 torch = {index="pytorch_cpu"}
