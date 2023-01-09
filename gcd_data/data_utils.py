@@ -1,5 +1,6 @@
 import numpy as np
-from torch.utils.data import Dataset
+import torch
+from torch.utils.data import Dataset, WeightedRandomSampler
 
 
 def subsample_instances(dataset, prop_indices_to_subsample=0.8):
@@ -56,3 +57,13 @@ class IndexDataset(Dataset):
 
     def __len__(self):
         return len(self.source_dataset)
+
+
+class WeightedConsistentSampler(WeightedRandomSampler):
+    def __init__(self, weights, num_samples: int, replacement: bool = True) -> None:
+        super().__init__(weights, num_samples, replacement, torch.Generator())
+
+    def __iter__(self):
+        # reset generator so initial seed is consistently used
+        self.generator.manual_seed(self.generator.initial_seed())
+        return super().__iter__()
