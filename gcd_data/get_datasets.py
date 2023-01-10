@@ -22,11 +22,22 @@ get_dataset_funcs = {
 
 
 def get_datasets(dataset_name, train_transform, test_transform, args):
-    """
-    :return: train_dataset: MergedDataset which concatenates labelled and unlabelled
-             test_dataset,
-             unlabelled_train_examples_test,
-             datasets
+    """Shared interfrace for getting datasets
+
+    Args:
+        dataset_name (str): key for get_dataset_funcs
+        train_transform (Transform): transform for training set
+        test_transform (Transform): transform for test set
+        args (Namespace): Output of get_class_splits with prop_train_labels set
+
+    Raises:
+        ValueError: dataset_name not key for get_dataset_funcs
+
+    Returns:
+        tuple: train_dataset: MergedDataset which concatenates labelled and unlabelled
+               test_dataset: Disjoint test set with labeled normal and novel data,
+               unlabelled_train_examples_test: Unlabeled set with test transform,
+               datasets: dict returned by dataset specific get_dataset function
     """
 
     #
