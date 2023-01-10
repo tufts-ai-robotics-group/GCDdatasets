@@ -1,6 +1,9 @@
 import argparse
 import pytest
 
+import numpy as np
+from PIL.Image import Image
+
 from gcd_data.get_datasets import get_datasets, get_class_splits
 
 
@@ -47,3 +50,14 @@ class TestDatasets:
                  for i in range(len(dataset_dict["train_unlabelled"].samples))]))
         else:
             assert False
+
+    def test_contents(self, dataset_name, lens, class_counts):
+        dataset_dict = self.dataset_dict(dataset_name)
+        for dataset in dataset_dict.values():
+            if dataset is not None:
+                output = dataset[0]
+                assert len(output) == 3
+                image, target, uq_id = output
+                assert type(image) == Image
+                assert type(target) == int
+                assert uq_id.dtype == np.int64 and uq_id.ndim == 0
