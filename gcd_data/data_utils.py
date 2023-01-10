@@ -1,6 +1,8 @@
+import itertools
+
 import numpy as np
 import torch
-from torch.utils.data import Dataset, WeightedRandomSampler
+from torch.utils.data import Dataset, WeightedRandomSampler, Sampler
 
 
 def subsample_instances(dataset, prop_indices_to_subsample=0.8):
@@ -67,3 +69,25 @@ class WeightedConsistentSampler(WeightedRandomSampler):
         # reset generator so initial seed is consistently used
         self.generator.manual_seed(self.generator.initial_seed())
         return super().__iter__()
+
+
+class MergedDatasetSampler(Sampler):
+    def __init__(self, merged_dataset: MergedDataset) -> None:
+        labeled_len = len(merged_dataset.labelled_dataset)
+        unlabelled_len = len(merged_dataset.unlabelled_dataset)
+        # construct epoch that's twice the size of the larger set
+        self.epoch_size = max(labeled_len, unlabelled_len) * 2
+        # construct samplers, with only the smaller set having replacement
+        self.labeled_sampler = WeightedConsistentSampler(
+            torch.Tensor([1] * labeled_len),
+            num_samples=self.epoch_size//2,
+            replacement=labeled_len < unlabelled_len)
+        self.unlabeled_sampler = WeightedConsistentSampler(
+            torch.Tensor(([0] * labeled_len) + ([1] * unlabelled_len)),
+            num_samples=self.epoch_size//2,
+            replacement=labeled_len > unlabelled_len)
+
+    def __iter__(self):
+        # alternates between labeled and unlabeled
+        return itertools.chain(*zip(self.labeled_sampler.__iter__(),
+                                    self.unlabeled_sampler.__iter__()))
