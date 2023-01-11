@@ -169,10 +169,6 @@
             "markers": "python_version >= '3.6'",
             "version": "==1.0.0"
         },
-        "polycraft-nov-data": {
-            "editable": true,
-            "path": "./submodules/polycraft-novelty-data"
-        },
         "pycodestyle": {
             "hashes": [
                 "sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053",
