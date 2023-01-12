@@ -34,9 +34,10 @@ def get_datasets(dataset_name, train_transform, test_transform, args):
         ValueError: dataset_name not key for get_dataset_funcs
 
     Returns:
-        tuple: train_dataset: MergedDataset which concatenates labelled and unlabelled
-               test_dataset: Disjoint test set with labeled normal and novel data,
-               unlabelled_train_examples_test: Unlabeled set with test transform,
+        tuple: train_dataset: MergedDataset which concatenates labelled (normal) and
+                              unlabelled (normal and novel)
+               validation_dataset: Disjoint validation set with normal and novel data,
+               test_dataset: Unlabelled training set with test transform,
                datasets: dict returned by dataset specific get_dataset function
     """
 
