@@ -36,7 +36,8 @@ def get_datasets(dataset_name, train_transform, test_transform, args):
     Returns:
         tuple: train_dataset: MergedDataset which concatenates labeled (normal) and
                               unlabeled (normal and novel)
-               validation_dataset: Disjoint validation set with normal and novel data,
+               validation_dataset: Disjoint validation set with normal and novel data
+                                   where only normal labels should be used,
                test_dataset: Unlabeled training set with test transform,
                datasets: dict returned by dataset specific get_dataset function
     """
