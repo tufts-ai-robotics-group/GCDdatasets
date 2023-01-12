@@ -156,36 +156,36 @@ def get_cub_datasets(train_transform, test_transform, train_classes=range(160),
     whole_training_set = CustomCub2011(
         root=cub_root, transform=train_transform, train=True, download=download)
 
-    # Get labelled training set which has subsampled classes, then subsample some indices from that
-    train_dataset_labelled = subsample_classes(
+    # Get labeled training set which has subsampled classes, then subsample some indices from that
+    train_dataset_labeled = subsample_classes(
         deepcopy(whole_training_set), include_classes=train_classes)
     subsample_indices = subsample_instances(
-        train_dataset_labelled, prop_indices_to_subsample=prop_train_labels)
-    train_dataset_labelled = subsample_dataset(train_dataset_labelled, subsample_indices)
+        train_dataset_labeled, prop_indices_to_subsample=prop_train_labels)
+    train_dataset_labeled = subsample_dataset(train_dataset_labeled, subsample_indices)
 
     # Split into training and validation sets
-    train_idxs, val_idxs = get_train_val_indices(train_dataset_labelled)
-    train_dataset_labelled_split = subsample_dataset(deepcopy(train_dataset_labelled), train_idxs)
-    val_dataset_labelled_split = subsample_dataset(deepcopy(train_dataset_labelled), val_idxs)
-    val_dataset_labelled_split.transform = test_transform
+    train_idxs, val_idxs = get_train_val_indices(train_dataset_labeled)
+    train_dataset_labeled_split = subsample_dataset(deepcopy(train_dataset_labeled), train_idxs)
+    val_dataset_labeled_split = subsample_dataset(deepcopy(train_dataset_labeled), val_idxs)
+    val_dataset_labeled_split.transform = test_transform
 
-    # Get unlabelled data
-    unlabelled_indices = set(whole_training_set.uq_idxs) - set(train_dataset_labelled.uq_idxs)
-    train_dataset_unlabelled = subsample_dataset(
-        deepcopy(whole_training_set), np.array(list(unlabelled_indices)))
+    # Get unlabeled data
+    unlabeled_indices = set(whole_training_set.uq_idxs) - set(train_dataset_labeled.uq_idxs)
+    train_dataset_unlabeled = subsample_dataset(
+        deepcopy(whole_training_set), np.array(list(unlabeled_indices)))
 
     # Get test set for all classes
     test_dataset = CustomCub2011(root=cub_root, transform=test_transform, train=False)
 
     # Either split train into train and val or use test set as val
-    train_dataset_labelled = train_dataset_labelled_split if split_train_val else \
-        train_dataset_labelled
-    val_dataset_labelled = val_dataset_labelled_split if split_train_val else None
+    train_dataset_labeled = train_dataset_labeled_split if split_train_val else \
+        train_dataset_labeled
+    val_dataset_labeled = val_dataset_labeled_split if split_train_val else None
 
     all_datasets = {
-        'train_labelled': train_dataset_labelled,
-        'train_unlabelled': train_dataset_unlabelled,
-        'val': val_dataset_labelled,
+        'train_labeled': train_dataset_labeled,
+        'train_unlabeled': train_dataset_unlabeled,
+        'val': val_dataset_labeled,
         'test': test_dataset,
     }
 
@@ -202,12 +202,12 @@ if __name__ == '__main__':
         if v is not None:
             print(f'{k}: {len(v)}')
 
-    print('Printing labelled and unlabelled overlap...')
-    print(set.intersection(set(x['train_labelled'].uq_idxs), set(x['train_unlabelled'].uq_idxs)))
+    print('Printing labeled and unlabeled overlap...')
+    print(set.intersection(set(x['train_labeled'].uq_idxs), set(x['train_unlabeled'].uq_idxs)))
     print('Printing total instances in train...')
-    print(len(set(x['train_labelled'].uq_idxs)) + len(set(x['train_unlabelled'].uq_idxs)))
+    print(len(set(x['train_labeled'].uq_idxs)) + len(set(x['train_unlabeled'].uq_idxs)))
 
-    print(f'Num Labelled Classes: {len(set(x["train_labelled"].data["target"].values))}')
-    print(f'Num Unabelled Classes: {len(set(x["train_unlabelled"].data["target"].values))}')
-    print(f'Len labelled set: {len(x["train_labelled"])}')
-    print(f'Len unlabelled set: {len(x["train_unlabelled"])}')
+    print(f'Num labeled Classes: {len(set(x["train_labeled"].data["target"].values))}')
+    print(f'Num Unabelled Classes: {len(set(x["train_unlabeled"].data["target"].values))}')
+    print(f'Len labeled set: {len(x["train_labeled"])}')
+    print(f'Len unlabeled set: {len(x["train_unlabeled"])}')

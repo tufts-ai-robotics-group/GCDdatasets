@@ -27,27 +27,27 @@ class TestDatasets:
 
     def test_lens(self, dataset_name, lens, class_counts):
         dataset_dict = self.dataset_dict(dataset_name)
-        assert lens[0] == len(dataset_dict["train_labelled"])
-        assert lens[1] == len(dataset_dict["train_unlabelled"])
+        assert lens[0] == len(dataset_dict["train_labeled"])
+        assert lens[1] == len(dataset_dict["train_unlabeled"])
 
     def test_class_count(self, dataset_name, lens, class_counts):
         dataset_dict = self.dataset_dict(dataset_name)
         if dataset_name in ["cifar10", "cifar100", "herbarium_19"]:
-            assert class_counts[0] == len(set(dataset_dict["train_labelled"].targets))
-            assert class_counts[1] == len(set(dataset_dict["train_unlabelled"].targets))
+            assert class_counts[0] == len(set(dataset_dict["train_labeled"].targets))
+            assert class_counts[1] == len(set(dataset_dict["train_unlabeled"].targets))
         elif dataset_name == "scars":
-            assert class_counts[0] == len(set(dataset_dict["train_labelled"].target))
-            assert class_counts[1] == len(set(dataset_dict["train_unlabelled"].target))
+            assert class_counts[0] == len(set(dataset_dict["train_labeled"].target))
+            assert class_counts[1] == len(set(dataset_dict["train_unlabeled"].target))
         elif dataset_name == "cub":
-            assert class_counts[0] == len(set(dataset_dict["train_labelled"].data["target"]))
-            assert class_counts[1] == len(set(dataset_dict["train_unlabelled"].data["target"]))
+            assert class_counts[0] == len(set(dataset_dict["train_labeled"].data["target"]))
+            assert class_counts[1] == len(set(dataset_dict["train_unlabeled"].data["target"]))
         elif dataset_name == "aircraft":
             assert class_counts[0] == len(set(
-                [dataset_dict["train_labelled"].samples[i][1]
-                 for i in range(len(dataset_dict["train_labelled"].samples))]))
+                [dataset_dict["train_labeled"].samples[i][1]
+                 for i in range(len(dataset_dict["train_labeled"].samples))]))
             assert class_counts[1] == len(set(
-                [dataset_dict["train_unlabelled"].samples[i][1]
-                 for i in range(len(dataset_dict["train_unlabelled"].samples))]))
+                [dataset_dict["train_unlabeled"].samples[i][1]
+                 for i in range(len(dataset_dict["train_unlabeled"].samples))]))
         else:
             assert False
 

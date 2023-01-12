@@ -115,56 +115,56 @@ def get_herbarium_datasets(train_transform, test_transform, train_classes=range(
     train_dataset = HerbariumDataset19(transform=train_transform,
                                        root=os.path.join(herbarium_dataroot, 'small-train'))
 
-    # Get labelled training set which has subsampled classes, then subsample some indices from that
-    # TODO: Subsampling unlabelled set in uniform random fashion from training data,
+    # Get labeled training set which has subsampled classes, then subsample some indices from that
+    # TODO: Subsampling unlabeled set in uniform random fashion from training data,
     # will contain many instances of dominant class
-    train_dataset_labelled = subsample_classes(
+    train_dataset_labeled = subsample_classes(
         deepcopy(train_dataset), include_classes=train_classes)
     subsample_indices = subsample_instances(
-        train_dataset_labelled, prop_indices_to_subsample=prop_train_labels)
-    train_dataset_labelled = subsample_dataset(train_dataset_labelled, subsample_indices)
+        train_dataset_labeled, prop_indices_to_subsample=prop_train_labels)
+    train_dataset_labeled = subsample_dataset(train_dataset_labeled, subsample_indices)
 
     # Split into training and validation sets
     if split_train_val:
 
-        train_idxs, val_idxs = get_train_val_indices(train_dataset_labelled,
+        train_idxs, val_idxs = get_train_val_indices(train_dataset_labeled,
                                                      val_instances_per_class=5)
-        train_dataset_labelled_split = subsample_dataset(
-            deepcopy(train_dataset_labelled), train_idxs)
-        val_dataset_labelled_split = subsample_dataset(deepcopy(train_dataset_labelled), val_idxs)
-        val_dataset_labelled_split.transform = test_transform
+        train_dataset_labeled_split = subsample_dataset(
+            deepcopy(train_dataset_labeled), train_idxs)
+        val_dataset_labeled_split = subsample_dataset(deepcopy(train_dataset_labeled), val_idxs)
+        val_dataset_labeled_split.transform = test_transform
 
     else:
 
-        train_dataset_labelled_split, val_dataset_labelled_split = None, None
+        train_dataset_labeled_split, val_dataset_labeled_split = None, None
 
-    # Get unlabelled data
-    unlabelled_indices = set(train_dataset.uq_idxs) - set(train_dataset_labelled.uq_idxs)
-    train_dataset_unlabelled = subsample_dataset(
-        deepcopy(train_dataset), np.array(list(unlabelled_indices)))
+    # Get unlabeled data
+    unlabeled_indices = set(train_dataset.uq_idxs) - set(train_dataset_labeled.uq_idxs)
+    train_dataset_unlabeled = subsample_dataset(
+        deepcopy(train_dataset), np.array(list(unlabeled_indices)))
 
     # Get test dataset
     test_dataset = HerbariumDataset19(transform=test_transform,
                                       root=os.path.join(herbarium_dataroot, 'small-validation'))
 
     # Transform dict
-    unlabelled_classes = list(set(train_dataset.targets) - set(train_classes))
+    unlabeled_classes = list(set(train_dataset.targets) - set(train_classes))
     target_xform_dict = {}
-    for i, k in enumerate(list(train_classes) + unlabelled_classes):
+    for i, k in enumerate(list(train_classes) + unlabeled_classes):
         target_xform_dict[k] = i
 
     test_dataset.target_transform = lambda x: target_xform_dict[x]
-    train_dataset_unlabelled.target_transform = lambda x: target_xform_dict[x]
+    train_dataset_unlabeled.target_transform = lambda x: target_xform_dict[x]
 
     # Either split train into train and val or use test set as val
-    train_dataset_labelled = train_dataset_labelled_split if split_train_val else \
-        train_dataset_labelled
-    val_dataset_labelled = val_dataset_labelled_split if split_train_val else None
+    train_dataset_labeled = train_dataset_labeled_split if split_train_val else \
+        train_dataset_labeled
+    val_dataset_labeled = val_dataset_labeled_split if split_train_val else None
 
     all_datasets = {
-        'train_labelled': train_dataset_labelled,
-        'train_unlabelled': train_dataset_unlabelled,
-        'val': val_dataset_labelled,
+        'train_labeled': train_dataset_labeled,
+        'train_unlabeled': train_dataset_unlabeled,
+        'val': val_dataset_labeled,
         'test': test_dataset,
     }
 
@@ -179,23 +179,23 @@ if __name__ == '__main__':
     x = get_herbarium_datasets(None, None, train_classes=train_classes,
                                prop_train_labels=0.5)
 
-    assert set(x['train_unlabelled'].targets) == set(range(683))
+    assert set(x['train_unlabeled'].targets) == set(range(683))
 
     print('Printing lens...')
     for k, v in x.items():
         if v is not None:
             print(f'{k}: {len(v)}')
 
-    print('Printing labelled and unlabelled overlap...')
-    print(set.intersection(set(x['train_labelled'].uq_idxs), set(x['train_unlabelled'].uq_idxs)))
+    print('Printing labeled and unlabeled overlap...')
+    print(set.intersection(set(x['train_labeled'].uq_idxs), set(x['train_unlabeled'].uq_idxs)))
     print('Printing total instances in train...')
-    print(len(set(x['train_labelled'].uq_idxs)) + len(set(x['train_unlabelled'].uq_idxs)))
-    print('Printing number of labelled classes...')
-    print(len(set(x['train_labelled'].targets)))
+    print(len(set(x['train_labeled'].uq_idxs)) + len(set(x['train_unlabeled'].uq_idxs)))
+    print('Printing number of labeled classes...')
+    print(len(set(x['train_labeled'].targets)))
     print('Printing total number of classes...')
-    print(len(set(x['train_unlabelled'].targets)))
+    print(len(set(x['train_unlabeled'].targets)))
 
-    print(f'Num Labelled Classes: {len(set(x["train_labelled"].targets))}')
-    print(f'Num Unabelled Classes: {len(set(x["train_unlabelled"].targets))}')
-    print(f'Len labelled set: {len(x["train_labelled"])}')
-    print(f'Len unlabelled set: {len(x["train_unlabelled"])}')
+    print(f'Num labeled Classes: {len(set(x["train_labeled"].targets))}')
+    print(f'Num Unabelled Classes: {len(set(x["train_unlabeled"].targets))}')
+    print(f'Len labeled set: {len(x["train_labeled"])}')
+    print(f'Len unlabeled set: {len(x["train_unlabeled"])}')

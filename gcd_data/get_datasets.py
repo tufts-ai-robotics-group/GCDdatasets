@@ -34,10 +34,10 @@ def get_datasets(dataset_name, train_transform, test_transform, args):
         ValueError: dataset_name not key for get_dataset_funcs
 
     Returns:
-        tuple: train_dataset: MergedDataset which concatenates labelled (normal) and
-                              unlabelled (normal and novel)
+        tuple: train_dataset: MergedDataset which concatenates labeled (normal) and
+                              unlabeled (normal and novel)
                validation_dataset: Disjoint validation set with normal and novel data,
-               test_dataset: Unlabelled training set with test transform,
+               test_dataset: Unlabeled training set with test transform,
                datasets: dict returned by dataset specific get_dataset function
     """
 
@@ -62,15 +62,15 @@ def get_datasets(dataset_name, train_transform, test_transform, args):
         if dataset is not None:
             dataset.target_transform = target_transform
 
-    # Train split (labelled and unlabelled classes) for training
-    train_dataset = MergedDataset(labelled_dataset=deepcopy(datasets['train_labelled']),
-                                  unlabelled_dataset=deepcopy(datasets['train_unlabelled']))
+    # Train split (labeled and unlabeled classes) for training
+    train_dataset = MergedDataset(labeled_dataset=deepcopy(datasets['train_labeled']),
+                                  unlabeled_dataset=deepcopy(datasets['train_unlabeled']))
 
     test_dataset = datasets['test']
-    unlabelled_train_examples_test = deepcopy(datasets['train_unlabelled'])
-    unlabelled_train_examples_test.transform = test_transform
+    unlabeled_train_examples_test = deepcopy(datasets['train_unlabeled'])
+    unlabeled_train_examples_test.transform = test_transform
 
-    return train_dataset, test_dataset, unlabelled_train_examples_test, datasets
+    return train_dataset, test_dataset, unlabeled_train_examples_test, datasets
 
 
 def get_class_splits(args):

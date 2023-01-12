@@ -31,9 +31,9 @@ class TestMergedSampler:
         for sample_index in sampler:
             # check that sampler alternates between labeled and unlabeled
             if sampler_len % 2 == 0:
-                assert sample_index < len(merged_dataset.labelled_dataset) and sample_index >= 0
+                assert sample_index < len(merged_dataset.labeled_dataset) and sample_index >= 0
             else:
-                assert sample_index >= len(merged_dataset.labelled_dataset) and \
+                assert sample_index >= len(merged_dataset.labeled_dataset) and \
                     sample_index < len(merged_dataset)
             sampler_len += 1
         # check sampler length

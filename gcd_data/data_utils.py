@@ -17,31 +17,31 @@ def subsample_instances(dataset, prop_indices_to_subsample=0.8):
 class MergedDataset(Dataset):
 
     """
-    Takes two datasets (labelled_dataset, unlabelled_dataset) and merges them
+    Takes two datasets (labeled_dataset, unlabeled_dataset) and merges them
     Allows you to iterate over them in parallel
     """
 
-    def __init__(self, labelled_dataset, unlabelled_dataset):
+    def __init__(self, labeled_dataset, unlabeled_dataset):
 
-        self.labelled_dataset = labelled_dataset
-        self.unlabelled_dataset = unlabelled_dataset
+        self.labeled_dataset = labeled_dataset
+        self.unlabeled_dataset = unlabeled_dataset
         self.target_transform = None
 
     def __getitem__(self, item):
 
-        if item < len(self.labelled_dataset):
-            img, label, uq_idx = self.labelled_dataset[item]
+        if item < len(self.labeled_dataset):
+            img, label, uq_idx = self.labeled_dataset[item]
             labeled_or_not = 1
 
         else:
 
-            img, label, uq_idx = self.unlabelled_dataset[item - len(self.labelled_dataset)]
+            img, label, uq_idx = self.unlabeled_dataset[item - len(self.labeled_dataset)]
             labeled_or_not = 0
 
         return img, label, uq_idx, np.array([labeled_or_not])
 
     def __len__(self):
-        return len(self.unlabelled_dataset) + len(self.labelled_dataset)
+        return len(self.unlabeled_dataset) + len(self.labeled_dataset)
 
 
 class IndexDataset(Dataset):
@@ -73,19 +73,19 @@ class WeightedConsistentSampler(WeightedRandomSampler):
 
 class MergedDatasetSampler(Sampler):
     def __init__(self, merged_dataset: MergedDataset) -> None:
-        labeled_len = len(merged_dataset.labelled_dataset)
-        unlabelled_len = len(merged_dataset.unlabelled_dataset)
+        labeled_len = len(merged_dataset.labeled_dataset)
+        unlabeled_len = len(merged_dataset.unlabeled_dataset)
         # construct epoch that's twice the size of the larger set
-        self.epoch_size = max(labeled_len, unlabelled_len) * 2
+        self.epoch_size = max(labeled_len, unlabeled_len) * 2
         # construct samplers, with only the smaller set having replacement
         self.labeled_sampler = WeightedConsistentSampler(
             torch.Tensor([1] * labeled_len),
             num_samples=self.epoch_size//2,
-            replacement=labeled_len < unlabelled_len)
+            replacement=labeled_len < unlabeled_len)
         self.unlabeled_sampler = WeightedConsistentSampler(
-            torch.Tensor(([0] * labeled_len) + ([1] * unlabelled_len)),
+            torch.Tensor(([0] * labeled_len) + ([1] * unlabeled_len)),
             num_samples=self.epoch_size//2,
-            replacement=labeled_len > unlabelled_len)
+            replacement=labeled_len > unlabeled_len)
 
     def __iter__(self):
         # alternates between labeled and unlabeled
