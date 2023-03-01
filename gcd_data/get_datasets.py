@@ -2,11 +2,14 @@ from copy import deepcopy
 from pathlib import Path
 import pickle
 
+import polycraft_nov_data.novelcraft_const as nc_const
+
 from gcd_data.config import osr_split_dir
 from gcd_data.data_utils import MergedDataset
 
 from gcd_data.cifar import get_cifar_10_datasets, get_cifar_100_datasets
 from gcd_data.herbarium_19 import get_herbarium_datasets
+from gcd_data.novelcraft import get_novelcraft_datasets
 from gcd_data.stanford_cars import get_scars_datasets
 from gcd_data.cub import get_cub_datasets
 from gcd_data.fgvc_aircraft import get_aircraft_datasets
@@ -17,7 +20,8 @@ get_dataset_funcs = {
     'herbarium_19': get_herbarium_datasets,
     'cub': get_cub_datasets,
     'aircraft': get_aircraft_datasets,
-    'scars': get_scars_datasets
+    'scars': get_scars_datasets,
+    'novelcraft': get_novelcraft_datasets,
 }
 
 
@@ -76,12 +80,12 @@ def get_datasets(dataset_name, train_transform, test_transform, args):
 
 def get_class_splits(args):
 
-    # For FGVC datasets, optionally return bespoke splits
+    # For FGVC datasets, by default use SSB splits
     if args.dataset_name in ('scars', 'cub', 'aircraft'):
         if hasattr(args, 'use_ssb_splits'):
             use_ssb_splits = args.use_ssb_splits
         else:
-            use_ssb_splits = False
+            use_ssb_splits = True
 
     # -------------
     # GET CLASS SPLITS
@@ -173,6 +177,12 @@ def get_class_splits(args):
 
             args.train_classes = range(100)
             args.unlabeled_classes = range(100, 200)
+
+    elif args.dataset_name == 'novelcraft':
+
+        args.image_size = nc_const.IMAGE_SHAPE[1]
+        args.train_classes = nc_const.NORMAL_CLASSES
+        args.unlabeled_classes = nc_const.NOVEL_VALID_CLASSES + nc_const.NOVEL_TEST_CLASSES
 
     else:
 
