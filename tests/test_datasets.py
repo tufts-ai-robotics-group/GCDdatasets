@@ -16,12 +16,13 @@ from gcd_data.get_datasets import get_datasets, get_class_splits
         ("aircraft", [1666, 5001], [50, 100]),
         ("herbarium_19", [8869, 25356], [341, 683]),
         ("scars", [2000, 6144], [98, 196]),
+        ("novelcraft", [0, 0], [0, 0])
     ],
 )
 class TestDatasets:
     def dataset_dict(self, dataset_name):
         args = get_class_splits(argparse.Namespace(
-            dataset_name=dataset_name, use_ssb_splits=True, prop_train_labels=.5))
+            dataset_name=dataset_name, prop_train_labels=.5))
         datasets = get_datasets(dataset_name, None, None, args)[3]
         return datasets
 

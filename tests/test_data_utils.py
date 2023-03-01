@@ -16,12 +16,13 @@ from gcd_data.get_datasets import get_datasets, get_class_splits
         "aircraft",
         "herbarium_19",
         "scars",
+        "novelcraft",
     ],
 )
 class TestMergedSampler:
     def merged_dataset(self, dataset_name):
         args = get_class_splits(argparse.Namespace(
-            dataset_name=dataset_name, use_ssb_splits=True, prop_train_labels=.5))
+            dataset_name=dataset_name, prop_train_labels=.5))
         return get_datasets(dataset_name, None, None, args)[0]
 
     def test_sampler(self, dataset_name):
