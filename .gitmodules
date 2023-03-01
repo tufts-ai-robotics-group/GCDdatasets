@@ -1,0 +1,3 @@
+[submodule "submodules/polycraft-novelty-data"]
+	path = submodules/polycraft-novelty-data
+	url = https://github.com/tufts-ai-robotics-group/polycraft-novelty-data.git
