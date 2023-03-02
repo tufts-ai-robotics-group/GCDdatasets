@@ -26,10 +26,10 @@ get_dataset_funcs = {
 
 
 def get_datasets(dataset_name, train_transform, test_transform, args):
-    """Shared interfrace for getting datasets, with targets reordered so:
-    Normal classes: [0, ..., len(list(args.train_classes))]
-    Novel classes: [len(list(args.train_classes)) + 1, ...,
-    len(list(args.train_classes)) + len(list(args.unlabeled_classes))]
+    """Shared interfrace for getting datasets, with targets reordered to
+    Normal classes: [0, ..., len(args.train_classes)]
+    Novel classes: [len(args.train_classes) + 1, ...,
+                    len(args.train_classes) + len(args.unlabeled_classes)]
 
     Args:
         dataset_name (str): key for get_dataset_funcs
