@@ -184,8 +184,9 @@ def get_class_splits(args):
     elif args.dataset_name == 'novelcraft':
 
         args.image_size = nc_const.IMAGE_SHAPE[1]
-        args.train_classes = nc_const.NORMAL_CLASSES
-        args.unlabeled_classes = nc_const.NOVEL_VALID_CLASSES + nc_const.NOVEL_TEST_CLASSES
+        args.train_classes = [nc_const.ALL_CLASS_TO_IDX[c] for c in nc_const.NORMAL_CLASSES]
+        args.unlabeled_classes = [
+            nc_const.ALL_CLASS_TO_IDX[c] for c in nc_const.NOVEL_VALID_CLASSES]
 
     else:
 

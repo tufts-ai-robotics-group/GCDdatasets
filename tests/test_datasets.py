@@ -16,7 +16,7 @@ from gcd_data.get_datasets import get_datasets, get_class_splits
         ("aircraft", [1666, 5001], [50, 100]),
         ("herbarium_19", [8869, 25356], [341, 683]),
         ("scars", [2000, 6144], [98, 196]),
-        ("novelcraft", [0, 0], [0, 0])
+        ("novelcraft", [7037, 1205], [5, 10])
     ],
 )
 class TestDatasets:
@@ -33,7 +33,7 @@ class TestDatasets:
 
     def test_class_count(self, dataset_name, lens, class_counts):
         dataset_dict = self.dataset_dict(dataset_name)
-        if dataset_name in ["cifar10", "cifar100", "herbarium_19"]:
+        if dataset_name in ["cifar10", "cifar100", "herbarium_19", "novelcraft"]:
             assert class_counts[0] == len(set(dataset_dict["train_labeled"].targets))
             assert class_counts[1] == len(set(dataset_dict["train_unlabeled"].targets))
         elif dataset_name == "scars":
@@ -61,4 +61,4 @@ class TestDatasets:
                 image, target, uq_id = output
                 assert type(image) == Image
                 assert type(target) == int
-                assert uq_id.dtype == np.int64 and uq_id.ndim == 0
+                assert uq_id.dtype == np.int32 and uq_id.ndim == 0

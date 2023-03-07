@@ -55,7 +55,7 @@ class IndexDataset(Dataset):
         self.source_dataset = source_dataset
 
     def __getitem__(self, item):
-        return (*self.source_dataset[item], item)
+        return (*self.source_dataset[item], np.array(item))
 
     def __len__(self):
         return len(self.source_dataset)
