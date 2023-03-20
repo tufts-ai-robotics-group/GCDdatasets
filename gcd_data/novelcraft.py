@@ -2,6 +2,7 @@ from polycraft_nov_data.dataset import NovelCraft
 from polycraft_nov_data.novelcraft_const import SplitEnum
 
 from gcd_data.data_utils import IndexDataset
+from torch.utils.data import Subset
 
 
 def get_novelcraft_datasets(train_transform, test_transform, train_classes=None,
@@ -17,3 +18,8 @@ def get_novelcraft_datasets(train_transform, test_transform, train_classes=None,
         'test': IndexDataset(test_dataset),
     }
     return all_datasets
+
+
+def subsample_dataset(dataset, idxs):
+
+    return Subset(dataset, idxs)
