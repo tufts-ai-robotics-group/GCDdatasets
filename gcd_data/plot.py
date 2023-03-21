@@ -5,7 +5,6 @@ import numpy as np
 import argparse
 
 from gcd_data.get_datasets import get_class_splits, get_imbalanced_datasets, get_datasets
-from gcd_data.data_utils import get_targets
 
 
 def plot_imbalance(datasets, dataset_name):
@@ -20,8 +19,10 @@ def plot_imbalance(datasets, dataset_name):
                     for labeled and unlabeled datasets
     """
     # Get class counts for labeled and unlabeled training sets
-    labeled_targets = get_targets(datasets["train_labeled"], dataset_name)
-    unlabeled_targets = get_targets(datasets["train_unlabeled"], dataset_name)
+    labeled_targets = np.array([datasets['train_labeled'][i][1]
+                               for i in range(len(datasets['train_labeled']))])
+    unlabeled_targets = np.array([datasets['train_unlabeled'][i][1]
+                                 for i in range(len(datasets['train_unlabeled']))])
     total_classes = len(np.unique(np.concatenate([labeled_targets, unlabeled_targets])))
     train_labeled_counts = np.bincount(labeled_targets, minlength=total_classes+1)
     train_unlabeled_counts = np.bincount(unlabeled_targets, minlength=total_classes+1)

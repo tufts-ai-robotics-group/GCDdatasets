@@ -2,24 +2,19 @@ from copy import deepcopy
 from pathlib import Path
 import pickle
 import numpy as np
+from torch.utils.data import Subset
 
 import polycraft_nov_data.novelcraft_const as nc_const
 
 from gcd_data.config import osr_split_dir
-from gcd_data.data_utils import MergedDataset, get_targets
+from gcd_data.data_utils import MergedDataset
 
-from gcd_data.cifar import get_cifar_10_datasets, get_cifar_100_datasets, \
-    subsample_dataset as subsample_cifar_dataset
-from gcd_data.herbarium_19 import get_herbarium_datasets, \
-    subsample_dataset as subsample_herbarium_dataset
-from gcd_data.stanford_cars import get_scars_datasets, \
-    subsample_dataset as subsample_scars_dataset
-from gcd_data.cub import get_cub_datasets, \
-    subsample_dataset as subsample_cub_dataset
-from gcd_data.fgvc_aircraft import get_aircraft_datasets, \
-    subsample_dataset as subsample_aircraft_dataset
-from gcd_data.novelcraft import get_novelcraft_datasets, \
-    subsample_dataset as subsample_novelcraft_dataset
+from gcd_data.cifar import get_cifar_10_datasets, get_cifar_100_datasets
+from gcd_data.herbarium_19 import get_herbarium_datasets
+from gcd_data.stanford_cars import get_scars_datasets
+from gcd_data.cub import get_cub_datasets
+from gcd_data.fgvc_aircraft import get_aircraft_datasets
+from gcd_data.novelcraft import get_novelcraft_datasets
 
 get_dataset_funcs = {
     'cifar10': get_cifar_10_datasets,
@@ -29,16 +24,6 @@ get_dataset_funcs = {
     'aircraft': get_aircraft_datasets,
     'scars': get_scars_datasets,
     'novelcraft': get_novelcraft_datasets,
-}
-
-subsample_dataset_funcs = {
-    'cifar10': subsample_cifar_dataset,
-    'cifar100': subsample_cifar_dataset,
-    'herbarium_19': subsample_herbarium_dataset,
-    'cub': subsample_cub_dataset,
-    'aircraft': subsample_aircraft_dataset,
-    'scars': subsample_scars_dataset,
-    'novelcraft': subsample_novelcraft_dataset,
 }
 
 
@@ -130,7 +115,7 @@ def get_imbalanced_datasets(dataset_name, train_transform, test_transform, args)
     # Accordingly, train_dataset, unlabeled_train_examples_test and datasets
     # are modified
     t_un = datasets['train_unlabeled']
-    targets = get_targets(t_un, dataset_name)
+    targets = np.array([t_un[i][1] for i in range(len(t_un))])
 
     # Get the indices of unlabeled exmples in normal and novel classes
     normal_ind = np.where(np.isin(targets, args.train_classes))[0]
@@ -174,8 +159,7 @@ def get_imbalanced_datasets(dataset_name, train_transform, test_transform, args)
     unlabled_ind = np.concatenate([normal_ind, sampled_novel_ind]).astype(int)
 
     # Modify datasets['train_unlabeled'] to have imbalanced novel classes
-    subsample_dataset_f = subsample_dataset_funcs[dataset_name]
-    train_dataset_unlabeled = subsample_dataset_f(deepcopy(t_un), unlabled_ind)
+    train_dataset_unlabeled = Subset(deepcopy(t_un), unlabled_ind)
     datasets['train_unlabeled'] = train_dataset_unlabeled
 
     # Train split (labeled and unlabeled classes) for training

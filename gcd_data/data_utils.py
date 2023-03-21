@@ -5,30 +5,6 @@ import torch
 from torch.utils.data import Dataset, WeightedRandomSampler, Sampler
 
 
-def get_targets(dataset, dataset_name):
-    """Get targets from dataset
-
-    Args:
-        dataset (Dataset): Dataset to get targets from
-        dataset_name (str): Name of dataset
-
-    Returns:
-        targets (np.ndarray): Targets from dataset
-    """
-    if dataset_name in ["cifar10", "cifar100", "herbarium_19"]:
-        return np.array(dataset.targets)
-    elif dataset_name == "scars":
-        return np.array(dataset.target)
-    elif dataset_name == "cub":
-        return np.array(dataset.data["target"])
-    elif dataset_name == "aircraft":
-        return np.array([dataset.samples[i][1] for i in range(len(dataset.samples))])
-    elif dataset_name == "novelcraft":
-        return np.array([dataset[i][1] for i in range(len(dataset))])
-    else:
-        raise NotImplementedError
-
-
 def subsample_instances(dataset, prop_indices_to_subsample=0.8):
 
     np.random.seed(0)
