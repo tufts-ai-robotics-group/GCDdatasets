@@ -26,6 +26,63 @@ get_dataset_funcs = {
     'novelcraft': get_novelcraft_datasets,
 }
 
+def _generate_step_imbalance_indices(args, novel_ind, targets):
+    """Generate imbalanced indices for step imbalance
+
+    Args:
+        args (Namespace): Contains unlabelled_classes, prop_minority_class, and
+                          imbalance_ratio
+        novel_ind (np.array): Indices of novel classes
+        targets (np.array): target/label of the dataset
+    
+    Returns:
+        np.array: sampled indices of novel classes
+    
+    """
+    sampled_novel_ind = np.array([])
+
+    # determine the number of minority and majority classes
+    num_minority_cls = int(len(args.unlabeled_classes) * args.prop_minority_class)
+    num_majority_cls = len(args.unlabeled_classes) - num_minority_cls
+
+    # the first num_majority_cls classes are retained,
+    # while the rest are sampled with the given ratio
+    for i, cls in enumerate(args.unlabeled_classes):
+        if i < num_majority_cls:
+            sampled_novel_ind = np.concatenate(
+                [sampled_novel_ind, novel_ind[targets[novel_ind] == cls]])
+        else:
+            class_ind = novel_ind[targets[novel_ind] == cls]
+            sampled_novel_ind = np.concatenate(
+                [sampled_novel_ind,
+                    np.random.choice(class_ind, size=int(len(class_ind) / args.imbalance_ratio),
+                                    replace=False)])
+    
+    return sampled_novel_ind
+
+def _generate_linear_imbalance_indices(args, novel_ind, targets):
+    """Generate imbalanced indices for linear imbalance
+
+    Args:
+        args (Namespace): Contains unlabelled_classes and imbalance_ratio 
+        novel_ind (np.array): Indices of novel classes
+        targets (np.array): target/label of the dataset
+    
+    Returns:
+        np.array: sampled indices of novel classes
+    """
+
+    sampled_novel_ind = np.array([])
+    ratio_list = np.linspace(1, 1/args.imbalance_ratio, len(args.unlabeled_classes))
+
+    for i, cls in enumerate(args.unlabeled_classes):
+        class_ind = novel_ind[targets[novel_ind] == cls]
+        sampled_novel_ind = np.concatenate(
+            [sampled_novel_ind,
+                np.random.choice(class_ind, size=int(len(class_ind) * ratio_list[i]),
+                                replace=False)])
+        
+    return sampled_novel_ind
 
 def get_datasets(dataset_name, train_transform, test_transform, args):
     """Shared interfrace for getting datasets, with targets reordered to
@@ -123,35 +180,9 @@ def get_imbalanced_datasets(dataset_name, train_transform, test_transform, args)
 
     # For each novel class, sample the indices
     if args.imbalance_method == 'step':
-        sampled_novel_ind = np.array([])
-
-        # determine the number of minority and majority classes
-        num_minority_cls = int(len(args.unlabeled_classes) * args.prop_minority_class)
-        num_majority_cls = len(args.unlabeled_classes) - num_minority_cls
-
-        # the first num_majority_cls classes are retained,
-        # while the rest are sampled with the given ratio
-        for i, cls in enumerate(args.unlabeled_classes):
-            if i < num_majority_cls:
-                sampled_novel_ind = np.concatenate(
-                    [sampled_novel_ind, novel_ind[targets[novel_ind] == cls]])
-            else:
-                class_ind = novel_ind[targets[novel_ind] == cls]
-                sampled_novel_ind = np.concatenate(
-                    [sampled_novel_ind,
-                     np.random.choice(class_ind, size=int(len(class_ind) / args.imbalance_ratio),
-                                      replace=False)])
-
+        sampled_novel_ind = _generate_step_imbalance_indices(args, novel_ind, targets)
     elif args.imbalance_method == 'linear':
-        sampled_novel_ind = np.array([])
-        ratio_list = np.linspace(1, 1/args.imbalance_ratio, len(args.unlabeled_classes))
-
-        for i, cls in enumerate(args.unlabeled_classes):
-            class_ind = novel_ind[targets[novel_ind] == cls]
-            sampled_novel_ind = np.concatenate(
-                [sampled_novel_ind,
-                 np.random.choice(class_ind, size=int(len(class_ind) * ratio_list[i]),
-                                  replace=False)])
+        sampled_novel_ind = _generate_linear_imbalance_indices(args, novel_ind, targets)
     else:
         raise NotImplementedError
 
