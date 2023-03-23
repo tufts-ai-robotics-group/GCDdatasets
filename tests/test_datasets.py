@@ -61,4 +61,4 @@ class TestDatasets:
                 image, target, uq_id = output
                 assert type(image) == Image
                 assert type(target) == int
-                assert uq_id.dtype == np.int32 and uq_id.ndim == 0
+                assert uq_id.dtype == np.integer and uq_id.ndim == 0
