@@ -28,7 +28,7 @@ def merged_dataset(dataset_name):
     indirect=["merged_dataset"]
 )
 class TestMergedSampler:
-    def test_sampler(self, dataset_name, merged_dataset):
+    def test_merged_sampler(self, dataset_name, merged_dataset):
         sampler = MergedDatasetSampler(merged_dataset)
         sampler_len = 0
         for sample_index in sampler:
@@ -43,7 +43,7 @@ class TestMergedSampler:
         assert sampler.epoch_size == sampler_len
 
 
-def test_sampler():
+def test_weighted_sampler():
     sampler = WeightedConsistentSampler(([1] * 100) + ([2] * 100), 200)
     samples = torch.Tensor([i for i in sampler])
     for i in range(2):
