@@ -7,26 +7,28 @@ from gcd_data.data_utils import WeightedConsistentSampler, MergedDatasetSampler
 from gcd_data.get_datasets import get_datasets, get_class_splits
 
 
+@pytest.fixture
+def merged_dataset(dataset_name):
+    args = get_class_splits(argparse.Namespace(
+        dataset_name=dataset_name, prop_train_labels=.5))
+    return get_datasets(dataset_name, None, None, args)[0]
+
+
 @pytest.mark.parametrize(
-    "dataset_name",
+    "dataset_name, merged_dataset",
     [
-        "cifar10",
-        "cifar100",
-        "cub",
-        "aircraft",
-        "herbarium_19",
-        "scars",
-        "novelcraft",
+        ("cifar10", "cifar10"),
+        ("cifar100", "cifar100"),
+        ("cub", "cub"),
+        ("aircraft", "aircraft"),
+        ("herbarium_19", "herbarium_19"),
+        ("scars", "scars"),
+        ("novelcraft", "novelcraft"),
     ],
+    indirect=["merged_dataset"]
 )
 class TestMergedSampler:
-    def merged_dataset(self, dataset_name):
-        args = get_class_splits(argparse.Namespace(
-            dataset_name=dataset_name, prop_train_labels=.5))
-        return get_datasets(dataset_name, None, None, args)[0]
-
-    def test_sampler(self, dataset_name):
-        merged_dataset = self.merged_dataset(dataset_name)
+    def test_merged_sampler(self, dataset_name, merged_dataset):
         sampler = MergedDatasetSampler(merged_dataset)
         sampler_len = 0
         for sample_index in sampler:
@@ -41,7 +43,7 @@ class TestMergedSampler:
         assert sampler.epoch_size == sampler_len
 
 
-def test_sampler():
+def test_weighted_sampler():
     sampler = WeightedConsistentSampler(([1] * 100) + ([2] * 100), 200)
     samples = torch.Tensor([i for i in sampler])
     for i in range(2):
