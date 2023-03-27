@@ -16,6 +16,7 @@ fig_size = {
     'novelcraft': 10,
 }
 
+
 def plot_imbalance(datasets, dataset_name):
     """Plot class imbalance on labeled and unlabeled datasets of the train set in log scale
        The normal classes are plotted in the order of the number of labaled instances
@@ -39,11 +40,10 @@ def plot_imbalance(datasets, dataset_name):
     labeled_counts = np.bincount(labeled_targets, minlength=total_cls+1)
     unlabeled_counts = np.bincount(unlabeled_targets, minlength=total_cls+1)
 
-    # take log of class counts
-    labeled_counts = np.log(labeled_counts, where=(labeled_counts != 0))
-    unlabeled_counts = np.log(unlabeled_counts, where=(unlabeled_counts != 0))
-
     fig, ax = plt.subplots(1, 1, figsize=(fig_size[dataset_name], 4))
+
+    if dataset_name in ['herbarium_19']:
+        ax.set_yscale('log')
 
     # Get class counts for novel cls
     normal_cls = np.unique(labeled_targets)
@@ -54,22 +54,22 @@ def plot_imbalance(datasets, dataset_name):
     normal_cls = normal_cls[np.argsort(labeled_counts[normal_cls])[::-1]]
     labeled_counts = labeled_counts[normal_cls]
     novel_cls = novel_cls[np.argsort(novel_counts)[::-1]]
-    novel_counts = novel_counts[novel_cls - len(normal_cls)]
+    novel_counts = unlabeled_counts[novel_cls]
 
-    # Plot class counts
-    # Stacked bar plot for labeled training set
-    ax.bar(np.arange(len(normal_cls)), labeled_counts, label="Labeled", alpha=.7)
-    ax.bar(np.arange(len(normal_cls)), unlabeled_counts[normal_cls],
-           bottom=labeled_counts, label="Unlabeled",
-           color='darkorange', alpha=.7)
+    # Plot class counts side by side for labeled and unlabeled training sets of the normal classes
+    # Side by side bar plot for labeled training set
+    ax.bar(np.arange(len(normal_cls))-0.2, labeled_counts, label='Labeled', alpha=.7, width=.4)
+    # Side by side bar plot for unlabeled training set
+    ax.bar(np.arange(len(normal_cls))+0.2, unlabeled_counts[normal_cls],
+           color='darkorange', width=.4, label='Unlabeled', alpha=.7)
 
     # Bar plot for unlabeled training set
     ax.bar(np.arange(len(normal_cls),
                      len(normal_cls) + len(novel_cls)),
-           novel_counts, color='darkorange', alpha=.7)
+           novel_counts, color='darkorange', alpha=.7, width=.4)
 
     # Set xticks
-    ax.set_xticks(np.arange(total_cls), labels = np.concatenate([normal_cls, novel_cls]))
+    ax.set_xticks(np.arange(total_cls), labels=np.concatenate([normal_cls, novel_cls]))
     plt.setp(ax.get_xticklabels(), rotation=90, ha="right", rotation_mode="anchor")
 
     ax.legend()
@@ -78,18 +78,19 @@ def plot_imbalance(datasets, dataset_name):
 
 
 if __name__ == "__main__":
-    for dataset_name in ['cifar10', 'cifar100', 'cub', 'herbarium_19',
-                         'novelcraft', 'scars', 'aircraft']:
+    for dataset_name in ['cifar10', 'cifar100', 'herbarium_19', 'cub', 'aircraft', 'scars',
+                         'novelcraft']:
+        print(f"Plotting class imbalance for {dataset_name}...")
         args = get_class_splits(argparse.Namespace(
             dataset_name=dataset_name, prop_train_labels=.5))
 
         # Get balanced datasets
-        # original_datasets = get_datasets(args.dataset_name, None, None, args)[3]
-        # fig = plot_imbalance(original_datasets, dataset_name=dataset_name)
+        original_datasets = get_datasets(args.dataset_name, None, None, args)[3]
+        fig = plot_imbalance(original_datasets, dataset_name=dataset_name)
         fig_dir = Path(f"figures/{args.dataset_name}")
-        # fig_dir.mkdir(exist_ok=True)
-        # fig.savefig(fig_dir / "original.png")
-        # plt.close(fig)
+        fig_dir.mkdir(exist_ok=True)
+        fig.savefig(fig_dir / "original.png")
+        plt.close(fig)
 
         # Get imbalanced datasets
         for imbalance_ratio in [2, 10]:
