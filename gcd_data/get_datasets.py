@@ -41,6 +41,7 @@ def _generate_step_imbalance_indices(args, novel_ind, targets):
 
     """
     seed = args.seed if hasattr(args, 'seed') else 0
+    rng = np.random.default_rng(seed=seed)
     sampled_novel_ind = np.array([])
 
     # determine the number of minority and majority classes
@@ -55,9 +56,8 @@ def _generate_step_imbalance_indices(args, novel_ind, targets):
                 [sampled_novel_ind, novel_ind[targets[novel_ind] == cls]])
         else:
             class_ind = novel_ind[targets[novel_ind] == cls]
-            np.random.seed(seed)
-            ind = np.random.choice(class_ind, size=int(len(class_ind) / args.imbalance_ratio),
-                                   replace=False)
+            ind = rng.choice(class_ind, size=int(len(class_ind) / args.imbalance_ratio),
+                             replace=False)
             sampled_novel_ind = np.concatenate([sampled_novel_ind, ind])
 
     return sampled_novel_ind
@@ -75,14 +75,14 @@ def _generate_linear_imbalance_indices(args, novel_ind, targets):
         np.array: sampled indices of novel classes
     """
     seed = args.seed if hasattr(args, 'seed') else 0
+    rng = np.random.default_rng(seed=seed)
     sampled_novel_ind = np.array([])
     ratio_list = np.linspace(1, 1/args.imbalance_ratio, len(args.unlabeled_classes))
 
     for i, cls in enumerate(args.unlabeled_classes):
         class_ind = novel_ind[targets[novel_ind] == cls]
-        np.random.seed(seed)
-        ind = np.random.choice(class_ind, size=int(len(class_ind) * ratio_list[i]),
-                               replace=False)
+        ind = rng.choice(class_ind, size=int(len(class_ind) * ratio_list[i]),
+                         replace=False)
         sampled_novel_ind = np.concatenate([sampled_novel_ind, ind])
 
     return sampled_novel_ind
