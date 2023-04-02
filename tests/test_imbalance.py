@@ -6,7 +6,7 @@ import pytest
 import numpy as np
 import pickle
 
-from gcd_data.get_datasets import get_class_splits, get_imbalanced_datasets
+from gcd_data.get_datasets import get_class_splits, get_imbalanced_datasets, get_uq_idx
 
 
 @pytest.mark.parametrize(
@@ -36,28 +36,16 @@ class TestImbalance:
             prop_minority_class=prop_minority_class, seed=seed))
         datasets = get_imbalanced_datasets(dataset_name, None, None, args)[3]
 
-        indices_dir = Path(f"gcd_data/data/imbalanced/{dataset_name}")
+        dirname = (f'{imbalance_method}'
+                   f'_ratio{imbalance_ratio}'
+                   f'_minority{prop_minority_class}'
+                   f'_seed{seed}')
 
-        train_labeled_indices = np.array([datasets['train_labeled'][i][2]
-                                          for i in range(len(datasets['train_labeled']))])
-        train_unlabeled_indices = np.array([datasets['train_unlabeled'][i][2]
-                                            for i in range(len(datasets['train_unlabeled']))])
+        indices_dir = Path(f"gcd_data/data/imbalanced/{dirname}")
 
-        filename = ('train_labeled'
-                    f'_{imbalance_method}'
-                    f'_imbalance_ratio{imbalance_ratio}'
-                    f'_prop_minority_class{prop_minority_class}'
-                    f'_seed{seed}.pkl')
+        for split in ['train_labeled', 'train_unlabeled']:
+            indices = get_uq_idx(datasets[split])
 
-        with open(indices_dir / filename, "rb") as f:
-            expected_train_labeled_indices = pickle.load(f)
-            assert np.array_equal(train_labeled_indices, expected_train_labeled_indices)
-
-        filename = ('train_unlabeled'
-                    f'_{imbalance_method}'
-                    f'_imbalance_ratio{imbalance_ratio}'
-                    f'_prop_minority_class{prop_minority_class}'
-                    f'_seed{seed}.pkl')
-        with open(indices_dir / filename, "rb") as f:
-            expected_train_unlabeled_indices = pickle.load(f)
-            assert np.array_equal(train_unlabeled_indices, expected_train_unlabeled_indices)
+            with open(indices_dir / f"{dataset_name}_{split}.pkl", "rb") as f:
+                expected_indices = pickle.load(f)
+                assert np.array_equal(indices, expected_indices)
