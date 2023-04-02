@@ -322,3 +322,17 @@ def get_class_splits(args):
         raise NotImplementedError
 
     return args
+
+
+def get_uq_idx(dataset):
+    """
+    Get the uq_idx of a dataset, and by default the dataset is assumed to be
+    of the form (img, label, uq_idx)
+
+    Args:
+        dataset (torch.utils.data.Dataset or its superclass): Dataset to get uq_idx from
+    Returns:
+        uq_idx (np.ndarray): Unique indices of the dataset
+    """
+
+    return np.array([dataset[i][2] for i in range(len(dataset))])
