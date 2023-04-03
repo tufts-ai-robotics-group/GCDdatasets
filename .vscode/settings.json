@@ -3,5 +3,7 @@
     "python.testing.pytestEnabled": true,
     "python.analysis.extraPaths": [
         "submodules/polycraft-novelty-data"
-    ]
+    ],
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true
 }
