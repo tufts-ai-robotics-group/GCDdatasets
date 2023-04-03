@@ -77,7 +77,7 @@ def _generate_linear_imbalance_indices(args, novel_ind, targets):
     seed = args.seed if hasattr(args, 'seed') else 0
     rng = np.random.default_rng(seed=seed)
     sampled_novel_ind = np.array([])
-    ratio_list = np.linspace(1, 1/args.imbalance_ratio, len(args.unlabeled_classes))
+    ratio_list = np.linspace(1, 1 / args.imbalance_ratio, len(args.unlabeled_classes))
 
     for i, cls in enumerate(args.unlabeled_classes):
         class_ind = novel_ind[targets[novel_ind] == cls]
