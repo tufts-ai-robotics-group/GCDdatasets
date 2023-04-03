@@ -36,16 +36,16 @@ class TestImbalance:
             prop_minority_class=prop_minority_class, seed=seed))
         datasets = get_imbalanced_datasets(dataset_name, None, None, args)[3]
 
-        dirname = (f'{imbalance_method}'
-                   f'_ratio{imbalance_ratio}'
-                   f'_minority{prop_minority_class}'
-                   f'_seed{seed}')
+        imbalance_params = (f'{imbalance_method}'
+                            f'_ratio{imbalance_ratio}'
+                            f'_minority{prop_minority_class}'
+                            f'_seed{seed}')
 
-        indices_dir = Path(f"gcd_data/data/imbalanced/{dirname}")
+        indices_dir = Path(f"gcd_data/data/imbalanced/{dataset_name}/{imbalance_params}")
 
         for split in ['train_labeled', 'train_unlabeled']:
             indices = get_uq_idx(datasets[split])
 
-            with open(indices_dir / f"{dataset_name}_{split}.pkl", "rb") as f:
+            with open(indices_dir / f"{split}.pkl", "rb") as f:
                 expected_indices = pickle.load(f)
                 assert np.array_equal(indices, expected_indices)
